@@ -7,9 +7,13 @@
   "Parse Json to Clojure"
   (parse-string (slurp url)))
 
-(defn getValue [key user]
+(defn get-value [key user]
   "Get the value given a key"
-  (user key))
+  (let [s (user key)]
+    (subs s 0 (- (.length s) (.length "{/privacy}")))))
 
-;Get Url Events of Barista Public Members
-(map (partial getValue "events_url") (parse->clojure (str base-url "/orgs/BaristaVentures/members")))
+;;Get Url Events of Barista Public Members
+(defn members-url-events [org-name]
+  (map (partial get-value "events_url") (parse->clojure (str base-url "/orgs/" org-name "/members"))))
+
+(members-url-events "BaristaVentures")
