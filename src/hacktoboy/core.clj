@@ -36,4 +36,4 @@
                  (conj final element)))))))
 
 ;;Get all PullRequestEvents of Barista Ventures Public Members
-(map clean-arr (map (fn [arr] (map print-event arr)) (map parse->clojure (members-url-events "BaristaVentures"))))
+(map clean-arr (map (fn [arr] (map get-pullrequest arr)) (map parse->clojure (members-url-events "BaristaVentures"))))
