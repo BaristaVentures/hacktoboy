@@ -29,7 +29,7 @@
         date (get event "created_at")]
     (if (= type "PullRequestEvent")
       (if (.startsWith date "2016-10")
-        (str actor " - " type " - " action " - " repo " - " date)))))
+        (hash-map :actor actor :repo repo :date date)))))
 
 (defn clean-arr [arr]
   (loop [init arr
@@ -42,5 +42,10 @@
                  final
                  (conj final element)))))))
 
-;;Get all PullRequestEvents of Barista Ventures Public Members
-(map clean-arr (map (fn [arr] (map get-pullrequest arr)) (map parse->clojure (members-url-events "BaristaVentures"))))
+(defn count-pr [arr-pr]
+  (if (> (count arr-pr) 0)
+    {:user (get (first arr-pr) :actor) :score (count arr-pr) :lastpr (get (first arr-pr) :date)}))
+
+;;Get Members Score
+(sort-by :score > (filter (fn [x] (> (count x) 0)) (map count-pr (map clean-arr (map (fn [arr] (map get-pullrequest arr))
+    (map parse->clojure (members-url-events "BaristaVentures")))))))
