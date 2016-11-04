@@ -12,17 +12,24 @@
   (let [s (user key)]
     (subs s 0 (- (.length s) (.length "{/privacy}")))))
 
-(defn members-url-events [org-name]
-  "Get Url Events of Public Members  for org-name"
-  (map (partial get-value "events_url") (parse->clojure (str base-url "/orgs/" org-name "/members"))))
+(defn members-url-events
+  ([org-name]
+    "Get Url Events of Public Members  for org-name"
+      (map (partial get-value "events_url") (parse->clojure (str base-url "/orgs/" org-name "/members"))))
+  ([org-name token]
+    "Get Url Events for all Member for org-ame. Requires token and be member"
+      (map (partial get-value "events_url") (parse->clojure (str base-url "/orgs/" org-name "/members?access_token=" token)))))
+                          
 
 (defn get-pullrequest [event]
   (let [type (get event "type")
         actor (get-in event ["actor" "login"])
         repo (get-in event ["repo" "name"])
+        action (get-in event ["payload" "action"])
         date (get event "created_at")]
     (if (= type "PullRequestEvent")
-      (str actor " - " type " - " repo " - " date))))
+      (if (.startsWith date "2016-10")
+        (str actor " - " type " - " action " - " repo " - " date)))))
 
 (defn clean-arr [arr]
   (loop [init arr
