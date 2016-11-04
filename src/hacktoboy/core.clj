@@ -47,5 +47,8 @@
     {:user (get (first arr-pr) :actor) :score (count arr-pr) :lastpr (get (first arr-pr) :date)}))
 
 ;;Get Members Score
-(sort-by :score > (filter (fn [x] (> (count x) 0)) (map count-pr (map clean-arr (map (fn [arr] (map get-pullrequest arr))
-    (map parse->clojure (members-url-events "BaristaVentures")))))))
+(defn -main [& args]
+  (map (fn [m] (println (str (get m :user) " - " (get m :score))))
+       (sort-by :score > (filter (fn [x] (> (count x) 0))
+           (map count-pr (map clean-arr (map (fn [arr] (map get-pullrequest arr))
+               (map parse->clojure (members-url-events "BaristaVentures")))))))))
