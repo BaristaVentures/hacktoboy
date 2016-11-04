@@ -48,7 +48,8 @@
 
 ;;Get Members Score
 (defn -main [& args]
-  (map (fn [m] (println (str (get m :user) " - " (get m :score))))
+  (println "User - Score")
+  (apply println (map (fn [m] (str "\n" (get m :user) " - " (get m :score)))
        (sort-by :score > (filter (fn [x] (> (count x) 0))
            (map count-pr (map clean-arr (map (fn [arr] (map get-pullrequest arr))
-               (map parse->clojure (members-url-events "BaristaVentures")))))))))
+               (map parse->clojure (apply members-url-events args))))))))))
