@@ -21,12 +21,12 @@
       (map (partial get-value "events_url") (parse->clojure (str base-url "/orgs/" org-name "/members?access_token=" token)))))
                     
 (defn count-user-pr [arr]
-  (loop [[h & t] arr prs '()]
-    (if (empty? h)
-      (if (> (count prs) 0)
+  (loop [[{type "type" date "created_at" {name "name"} "repo" {login "login"} "actor"} & t] arr prs '()]
+    (if (empty? type)
+      (when (> (count prs) 0)
         {:user (:actor (first prs)) :score (count prs) :last (:date (last prs))})
-      (recur t (if (and (= (get h "type") "PullRequestEvent") (.startsWith (get h "created_at") "2016-10"))
-                 (conj prs {:actor (get-in h ["actor" "login"]) :repo (get-in h ["repo" "name"]) :date (get h "created_at")})
+      (recur t (if (and (= type "PullRequestEvent") (.startsWith date "2016-10"))
+                 (conj prs {:actor login :repo name :date date})
                  prs)))))
 
 ;;Get Members Score
