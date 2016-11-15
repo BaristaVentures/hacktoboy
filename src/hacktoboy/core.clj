@@ -22,22 +22,20 @@
 
 (defn count-user-pr [user-events]
   "Count User Pull Request Events"
-  (if-let [user-score
-           (reduce (fn [final-prs pr]
-                     (let [{type "type" date "created_at" {name "name"} "repo" {login "login"} "actor"} pr]
-                       (if (and (= type "PullRequestEvent") (.startsWith date "2016-10"))
-                         (conj final-prs {:actor login :repo name :date date})
-                         final-prs)))
-                   '()
-                   user-events)]
-    {:user (:actor (first user-score)) :score (count user-score) :last (:date (last user-score))}))
+  (reduce (fn [final-prs pr]
+            (let [{type "type" date "created_at" {name "name"} "repo" {login "login"} "actor"} pr]
+              (if (and (= type "PullRequestEvent") (.startsWith date "2016-10"))
+                (if (empty? final-prs)
+                  {:user login :score 1 :last date}
+                  (assoc final-prs :score (inc (:score final-prs))))
+                final-prs)))
+          '()
+          user-events))
 
 ;;Get Members Score
 (defn -main [& args]
   (println "User - Score")
   (apply println (map (fn [m] (str "\n" (:user m) " - " (:score m)))
-                      (sort-by :score > (filter (fn [x] (> (:score x) 0))
+                      (sort-by :score > (filter (fn [x] (> (count x) 0))
                                                 (map count-user-pr
                                                      (map parse->clojure (apply members-url-events args))))))))
-
-
